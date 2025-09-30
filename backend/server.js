@@ -15,11 +15,11 @@ const HOST = '0.0.0.0'; // Escuchar en todas las interfaces de red
 // Función para probar la conexión a la base de datos
 const testDatabaseConnection = async () => {
   const client = new Client({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: 'preguntados_0idj_user',
+    host: 'dpg-d3duro3e5dus73f9rn1g-a.oregon-postgres.render.com',
+    database: 'preguntados_0idj',
+    password: 'py7NZ7TIkOTo763T4yBZJOWCgnKAknYW',
+    port: 5432,
     ssl: {
       rejectUnauthorized: false
     }
@@ -82,11 +82,11 @@ const startServer = async () => {
   });
 
   const pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+    user: 'preguntados_0idj_user',
+    host: 'dpg-d3duro3e5dus73f9rn1g-a.oregon-postgres.render.com',
+    database: 'preguntados_0idj',
+    password: 'py7NZ7TIkOTo763T4yBZJOWCgnKAknYW',
+    port: 5432,
     ssl: {
       rejectUnauthorized: false
     }
