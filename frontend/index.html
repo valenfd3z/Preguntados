@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="description" content="Juego de Preguntados - Divertido y desafiante" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Preguntados" />
+    
+    <title>Preguntados</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="dark-theme.css" />
+    
+    <!-- iOS Splash Screen -->
+    <link rel="apple-touch-startup-image" href="splash.png" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Preguntados</h1>
+
+      <!-- LOGIN / MENÚ -->
+      <div id="login">
+        <input type="text" id="username" placeholder="Tu nombre" />
+        <button id="joinBtn">Unirse a partida 1vs1</button>
+        <button id="soloBtn">Jugar Solo</button>
+      </div>
+
+      <!-- RUEDA -->
+      <canvas id="roulette" width="500" height="500"></canvas>
+
+      <!-- JUEGO -->
+      <div id="game" style="display: none">
+        <h2 id="turnInfo"></h2>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="progressContainer">
+          <div id="progressBar"></div>
+        </div>
+        <div id="timerContainer">
+          <div id="timerBar"></div>
+        </div>
+        <div id="score"></div>
+      </div>
+    </div>
+
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Registrar Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+      
+      // Detectar si la aplicación se ejecuta en modo standalone
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+          console.log('Running in standalone mode');
+        }
+        
+        // Manejar la instalación de la PWA
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+          // Prevenir que Chrome 67 y versiones anteriores muestren automáticamente el prompt
+          e.preventDefault();
+          // Guardar el evento para que se pueda activar más tarde
+          deferredPrompt = e;
+          
+          // Mostrar botón de instalación personalizado
+          const installButton = document.createElement('button');
+          installButton.textContent = 'Instalar Preguntados';
+          installButton.style.position = 'fixed';
+          installButton.style.bottom = '20px';
+          installButton.style.left = '50%';
+          installButton.style.transform = 'translateX(-50%)';
+          installButton.style.zIndex = '1000';
+          installButton.style.padding = '10px 20px';
+          installButton.style.borderRadius = '20px';
+          installButton.style.background = 'linear-gradient(135deg, #4cc9f0, #4361ee)';
+          installButton.style.color = 'white';
+          installButton.style.border = 'none';
+          installButton.style.cursor = 'pointer';
+          installButton.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+          
+          installButton.addEventListener('click', () => {
+            // Mostrar el prompt de instalación
+            deferredPrompt.prompt();
+            // Esperar a que el usuario responda al prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('Usuario aceptó la instalación');
+              } else {
+                console.log('Usuario rechazó la instalación');
+              }
+              deferredPrompt = null;
+            });
+            // Ocultar el botón después de hacer clic
+            installButton.style.display = 'none';
+          });
+          
+          document.body.appendChild(installButton);
+          
+          // Ocultar el botón después de 10 segundos
+          setTimeout(() => {
+            if (installButton && installButton.parentNode) {
+              installButton.style.opacity = '0';
+              setTimeout(() => {
+                if (installButton && installButton.parentNode) {
+                  installButton.parentNode.removeChild(installButton);
+                }
+              }, 500);
+            }
+          }, 10000);
+        });
+      });
+    </script>
+    
+    <!-- Cargar socket.io desde CDN para mejor compatibilidad -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
