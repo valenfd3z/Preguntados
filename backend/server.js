@@ -15,11 +15,11 @@ const HOST = '0.0.0.0'; // Escuchar en todas las interfaces de red
 // Función para probar la conexión a la base de datos
 const testDatabaseConnection = async () => {
   const client = new Client({
-    user: 'preguntados_0idj_user',
+    user: db_user,
     host: 'dpg-d3duro3e5dus73f9rn1g-a.oregon-postgres.render.com',
-    database: 'preguntados_0idj',
-    password: 'py7NZ7TIkOTo763T4yBZJOWCgnKAknYW',
-    port: 5432,
+    database: dB_NAME,
+    password: DB_PASSWORD,
+    port: PORT,
     ssl: {
       rejectUnauthorized: false
     }
