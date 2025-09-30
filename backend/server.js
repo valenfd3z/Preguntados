@@ -5,12 +5,36 @@ require('dotenv').config();
 
 const http = require('http');
 const { Server } = require('socket.io');
-const { Pool } = require('pg');
+const { Pool, Client } = require('pg');
 
 const app = express();
-// Usar el puerto de las variables de entorno o 3001 por defecto
+// Usar el puerto de las variables de entorno o 4000 por defecto
 const PORT = process.env.PORT || 4000;
 const HOST = '0.0.0.0'; // Escuchar en todas las interfaces de red
+
+// Función para probar la conexión a la base de datos
+const testDatabaseConnection = async () => {
+  const client = new Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
+  try {
+    await client.connect();
+    console.log('✅ Conexión de prueba exitosa a PostgreSQL');
+    await client.end();
+    return true;
+  } catch (error) {
+    console.error('❌ Error al conectar a PostgreSQL:', error);
+    return false;
+  }
+};
 
 // Configuración de CORS para permitir conexiones desde cualquier origen
 app.use(cors({
@@ -23,45 +47,63 @@ app.use(express.json());
 // Servir archivos estáticos desde la carpeta frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-const server = http.createServer(app);
-// Configuración mejorada para Socket.IO
-const io = new Server(server, { 
-  cors: { 
-    origin: '*',
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
-  },
-  // Mejoras para conexiones móviles
-  pingTimeout: 60000,        // Aumentar el tiempo de espera de ping
-  pingInterval: 25000,       // Intervalo de ping más corto
-  transports: ['websocket', 'polling'], // Forzar ambos métodos de transporte
-  allowUpgrades: true,       // Permitir actualización de protocolo
-  cookie: false,            // Deshabilitar cookies si no son necesarias
-  serveClient: true,        // Servir el cliente de socket.io
-  path: '/socket.io/',      // Ruta del endpoint de socket.io
-  perMessageDeflate: {
-    threshold: 1024, // Umbral para compresión
-    zlibDeflateOptions: {
-      level: 6
-    }
+// Verificar la conexión a la base de datos antes de iniciar el servidor
+const startServer = async () => {
+  console.log('🔍 Probando conexión a la base de datos...');
+  const dbConnected = await testDatabaseConnection();
+  
+  if (!dbConnected) {
+    process.exit(1);
   }
-});
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
+  const server = http.createServer(app);
+  // Configuración mejorada para Socket.IO
+  const io = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
+    },
+    // Mejoras para conexiones móviles
+    pingTimeout: 60000,        // Aumentar el tiempo de espera de ping
+    pingInterval: 25000,       // Intervalo de ping más corto
+    transports: ['websocket', 'polling'], // Forzar ambos métodos de transporte
+    allowUpgrades: true,       // Permitir actualización de protocolo
+    cookie: false,            // Deshabilitar cookies si no son necesarias
+    serveClient: true,        // Servir el cliente de socket.io
+    path: '/socket.io/',      // Ruta del endpoint de socket.io
+    perMessageDeflate: {
+      threshold: 1024, // Umbral para compresión
+      zlibDeflateOptions: {
+        level: 6
+      }
+    }
+  });
 
-pool.connect()
-  .then(client => { console.log('✅ Conectado a PostgreSQL'); client.release(); })
-  .catch(err => console.error('❌ Error conectando a PostgreSQL', err));
+  const pool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 
-const waitingPlayers = [];
-const games = {};
+  // Probar la conexión al pool
+  try {
+    const client = await pool.connect();
+    console.log('✅ Conectado a PostgreSQL');
+    client.release();
+  } catch (err) {
+    console.error('❌ Error conectando a PostgreSQL', err);
+    process.exit(1);
+  }
+
+  const waitingPlayers = [];
+  const games = {};
 
 // --------------------- Funciones ---------------------
 
@@ -264,21 +306,30 @@ io.on('connection', (socket) => {
   });
 });
 
-// --------------------- Endpoints ---------------------
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-app.get('/stats', (req, res) => {
-  res.json({
-    timestamp: new Date().toISOString(),
-    server: 'Preguntados Backend',
-    playersWaiting: waitingPlayers.length,
-    activeGames: Object.keys(games).length
+  // --------------------- Endpoints ---------------------
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
   });
-});
 
-server.listen(PORT, HOST, () => {
-  console.log(`🚀 Servidor corriendo en http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
-  console.log(`⚡ Socket.io listo para conexiones`);
+  // Ruta para verificar el estado del servidor
+  app.get('/stats', (req, res) => {
+    res.json({
+      timestamp: new Date().toISOString(),
+      server: 'Preguntados Backend',
+      playersWaiting: waitingPlayers.length,
+      activeGames: Object.keys(games).length
+    });
+  });
+
+  // Iniciar el servidor
+  server.listen(PORT, HOST, () => {
+    console.log(`🚀 Servidor corriendo en http://${HOST}:${PORT}`);
+    console.log('⚡ Socket.io listo para conexiones');
+  });
+}
+
+// Iniciar la aplicación
+startServer().catch(err => {
+  console.error('❌ Error al iniciar el servidor:', err);
+  process.exit(1);
 });
