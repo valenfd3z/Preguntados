@@ -15,10 +15,24 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Cache abierta');
-        return cache.addAll(urlsToCache);
+        // Agregar recursos al caché uno por uno para manejar errores individualmente
+        return Promise.all(
+          urlsToCache.map(url => {
+            return fetch(new Request(url, { cache: 'no-cache' }))
+              .then(response => {
+                if (response.ok) {
+                  return cache.put(url, response);
+                }
+                console.warn('No se pudo cargar el recurso:', url);
+              })
+              .catch(error => {
+                console.warn('Error al cargar el recurso:', url, error);
+              });
+          })
+        );
       })
       .catch(error => {
-        console.error('Error al cachear recursos:', error);
+        console.error('Error al abrir la caché:', error);
       })
   );
   
@@ -42,47 +56,90 @@ self.addEventListener('activate', event => {
   );
   
   // Tomar el control de los clients inmediatamente
-  event.waitUntil(clients.claim());
 });
 
 // Estrategia de caché: Cache First, luego red
 self.addEventListener('fetch', event => {
+  // Ignorar solicitudes que no sean HTTP/HTTPS ( como chrome-extension:)
+  if (!event.request.url.startsWith('http') || 
+      event.request.url.startsWith('chrome-extension://') ||
+      event.request.url.includes('extension') ||
+      event.request.url.includes('sockjs') ||
+      event.request.url.includes('hot-update')) {
+    return;
+  }
+  
   // No cachear solicitudes a la API de Socket.io
   if (event.request.url.includes('socket.io')) {
     return fetch(event.request);
   }
   
+  // Solo manejar solicitudes GET
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Ignorar solicitudes de extensiones y otros orígenes no válidos
+  try {
+    const url = new URL(event.request.url);
+    if (url.protocol === 'chrome-extension:' || 
+        url.protocol === 'chrome:' ||
+        url.protocol === 'safari-extension:' ||
+        url.protocol === 'moz-extension:') {
+      return;
+    }
+  } catch (e) {
+    console.warn('URL no válida para el service worker:', event.request.url);
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Devuelve la respuesta en caché si existe
+        // Si la respuesta está en caché, devuélvela
         if (response) {
           return response;
         }
         
         // Si no está en caché, haz la petición a la red
-        return fetch(event.request).then(response => {
-          // Verifica que la respuesta sea válida
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          // Clona la respuesta para almacenarla en caché
-          const responseToCache = response.clone();
-          
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
+        return fetch(event.request)
+          .then(response => {
+            // Verifica que la respuesta sea válida
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
             
-          return response;
+            // Solo almacenar en caché si la solicitud es del mismo origen
+            // y no es una solicitud de socket.io
+            const responseToCache = response.clone();
+            const cacheUrl = new URL(event.request.url);
+            
+            if (cacheUrl.origin === self.location.origin && 
+                !event.request.url.includes('sockjs') &&
+                !event.request.url.includes('hot-update')) {
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, responseToCache)
+                    .catch(err => {
+                      console.warn('No se pudo almacenar en caché:', event.request.url, err);
+                    });
+                });
+            }
+            
+            return response;
+          });
+      })
+      .catch(error => {
+        console.error('Error en el service worker:', error);
+        // Puedes devolver una respuesta personalizada en caso de error
+        return new Response('Error de conexión', {
+          status: 408,
+          statusText: 'Error de conexión',
+          headers: { 'Content-Type': 'text/plain' }
         });
       })
-      .catch(() => {
-        // En caso de error, puedes devolver una página de error personalizada
-        return caches.match('/offline.html');
-      })
   );
+  
 });
 
 // Manejo de mensajes del cliente
