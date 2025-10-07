@@ -1,0 +1,27 @@
+{
+  "name": "Preguntados",
+  "short_name": "Preguntados",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#4cc9f0",
+  "orientation": "portrait",
+  "description": "Juego de Preguntados - Divertido y desafiante",
+  "categories": ["games", "education", "entertainment"],
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Pantalla de inicio de Preguntados"
+    }
+  ]
+}

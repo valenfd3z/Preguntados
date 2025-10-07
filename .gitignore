@@ -1,0 +1,67 @@
+# Dependencias
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Archivos de desarrollo
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# Archivos de sistema de Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Archivos de editor
+*.swp
+*.swo
+*~
+
+# Archivos de respaldo
+*.bak
+*.tmp
+*.backup
+*~
+
+# Archivos de entorno virtual
+venv/
+ENV/
+
+# Archivos de depuración
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de caché
+.cache/
+.parcel-cache/
+.temp/
+.tmp/
+
+# Archivos de entorno local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

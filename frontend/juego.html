@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="description" content="Juego de Preguntados - Divertido y desafiante" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Preguntados" />
+    
+    <title>Preguntados</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="dark-theme.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+      /* Estilos base */
+      .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      
+      .game-container {
+        max-width: 1000px;
+        width: 95%;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .game-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin: 0 auto 2rem auto;
+        color: #fff;
+        background: linear-gradient(90deg, #4cc9f0, #4361ee, #7209b7);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        -webkit-font-smoothing: antialiased;
+        text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
+        display: block;
+        width: 100%;
+      }
+      
+      .game-container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(76,201,240,0.1) 0%, rgba(0,0,0,0) 70%);
+        z-index: -1;
+        pointer-events: none;
+        animation: rotate 20s linear infinite;
+      }
+      
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      :root {
+        --primary-color: #4cc9f0;
+        --secondary-color: #4361ee;
+        --accent-color: #7209b7;
+        --text-color: #e6e6e6;
+        --bg-color: #0f0f1a;
+        --card-bg: rgba(26, 26, 46, 0.8);
+        --border-color: #2a2a4a;
+        --success-color: #4caf50;
+        --error-color: #f44336;
+        --hover-color: #2a2a4a;
+      }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        color: var(--text-color);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+        padding: 20px;
+      }
+
+      #app {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: rgba(22, 22, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(67, 97, 238, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      #app::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(76,201,240,0.1) 0%, rgba(0,0,0,0) 70%);
+        z-index: -1;
+        animation: rotate 20s linear infinite;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        text-align: center;
+        background: linear-gradient(90deg, #4cc9f0, #4361ee, #7209b7);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 200%;
+        animation: gradient 8s ease infinite;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+        text-align: center;
+      }
+
+      /* Estilos del formulario de login */
+      #login {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 400px;
+        margin: 0 auto 3rem;
+        padding: 2rem;
+        background: rgba(26, 26, 46, 0.6);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+      }
+
+      #username {
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: 2px solid var(--border-color);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      #username:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.3);
+      }
+
+      button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Estilos de la ruleta */
+      #roulette-container {
+        display: flex;
+        justify-content: center;
+        margin: 1rem 0;
+        position: relative;
+        transition: transform 0.3s ease-in-out;
+        width: 100%;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      #roulette-container:hover {
+        transform: scale(1.05);
+      }
+      
+      #roulette {
+        transition: transform 0.3s ease-in-out;
+        cursor: pointer;
+      }
+      
+      #roulette:hover {
+        transform: scale(1.05);
+      }
+      
+      /* Estilos para campos con iconos */
+      .input-with-icon {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 5px;
+      }
+      
+      .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        opacity: 0.8;
+        filter: invert(1) brightness(0.8);
+      }
+      
+      .input-with-icon input {
+        padding-left: 45px !important;
+        cursor: text !important;
+      }
+      
+      /* Estilos para botones con iconos */
+      .btn-with-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      
+      .btn-with-icon img {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        filter: invert(1) brightness(0.9);
+      }
+      
+      /* Estilos para los botones del menú */
+      #login {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 2rem;
+      }
+      
+      #login input,
+      #login button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      #login input {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 12px 20px;
+      }
+      
+      #login input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      
+      #joinBtn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+      }
+      
+      #soloBtn {
+        background: linear-gradient(135deg, #4cc9f0, #3a86ff);
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
+      }
+      
+      #login button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+      }
+
+      #roulette {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: 90vw; /* Limita el tamaño máximo al 90% del ancho de la ventana */
+        transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+      }
+
+      /* Estilos del juego */
+      #game {
+        margin-top: 2rem;
+        padding: 2rem;
+        background: rgba(26, 26, 46, 0.6);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+      }
+
+      #question {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        text-align: center;
+      }
+
+      #options {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .option-btn {
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-color);
+        font-size: 1rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .option-btn:hover:not(:disabled) {
+        background: rgba(76, 201, 240, 0.1);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+      }
+
+      .option-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .option-btn.correct {
+        background: rgba(76, 201, 128, 0.2);
+        border-color: #4cc980;
+        color: #4cc980;
+      }
+
+      .option-btn.incorrect {
+        background: rgba(244, 67, 54, 0.2);
+        border-color: var(--error-color);
+        color: #ff6b6b;
+      }
+
+      /* Barras de progreso */
+      #progressContainer, #timerContainer {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        margin: 1rem 0;
+        overflow: hidden;
+      }
+
+      #progressBar, #timerBar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      #timerBar {
+        background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      }
+
+      /* Animaciones */
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Estilos para retroalimentación de respuestas */
+      .answer-feedback {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        background: rgba(26, 26, 46, 0.8);
+        border: 1px solid var(--border-color);
+      }
+
+      .correct-answer {
+        color: var(--success-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .incorrect-answer {
+        color: var(--error-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .continue-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+      }
+
+      .continue-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .option-btn.wrong {
+        background: rgba(244, 67, 54, 0.2);
+        border-color: var(--error-color);
+        color: #ff6b6b;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        #app {
+          padding: 0.5rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        #roulette {
+          width: 95%;
+          max-height: 85vw;
+          height: auto;
+        }
+        
+        #roulette-container {
+          margin: 0.5rem 0;
+        }
+      }
+    </style>
+    
+    <!-- iOS Splash Screen -->
+    <link rel="apple-touch-startup-image" href="splash.png" />
+  </head>
+  <body>
+    <div class="particles" id="particles-js"></div>
+    
+    <div id="app" class="game-container">
+      <h1 class="game-title">Preguntados</h1>
+
+      <!-- LOGIN / MENÚ -->
+      <div id="login" class="animate__animated animate__fadeIn">
+        <div class="input-with-icon">
+          <img src="icons/historia.png" alt="Usuario" class="input-icon">
+          <input type="text" id="username" placeholder="Tu nombre" />
+        </div>
+        <button id="joinBtn" class="btn-with-icon">
+          <img src="icons/arte.png" alt="Multijugador">
+          <span>Unirse a partida 1vs1</span>
+        </button>
+        <button id="soloBtn" class="btn-with-icon">
+          <img src="icons/ciencia.png" alt="Jugar">
+          <span>Jugar Solo</span>
+        </button>
+      </div>
+
+      <!-- RUEDA -->
+        <div id="roulette-container">
+    <canvas id="roulette" width="500" height="500"></canvas>
+  </div>
+
+      <!-- JUEGO -->
+      <div id="game" class="animate__animated animate__fadeIn" style="display: none">
+        <h2 id="turnInfo"></h2>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="progressContainer">
+          <div id="progressBar"></div>
+        </div>
+        <div id="timerContainer">
+          <div id="timerBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Registrar Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+      
+      // Detectar si la aplicación se ejecuta en modo standalone
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+          console.log('Running in standalone mode');
+        }
+        
+        // Manejar la instalación de la PWA
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+          // Prevenir que Chrome 67 y versiones anteriores muestren automáticamente el prompt
+          e.preventDefault();
+          // Guardar el evento para que se pueda activar más tarde
+          deferredPrompt = e;
+          
+          // Mostrar botón de instalación personalizado
+          const installButton = document.createElement('button');
+          installButton.textContent = 'Instalar Preguntados';
+          installButton.style.position = 'fixed';
+          installButton.style.bottom = '20px';
+          installButton.style.left = '50%';
+          installButton.style.transform = 'translateX(-50%)';
+          installButton.style.zIndex = '1000';
+          installButton.style.padding = '10px 20px';
+          installButton.style.borderRadius = '20px';
+          installButton.style.background = 'linear-gradient(135deg, #4cc9f0, #4361ee)';
+          installButton.style.color = 'white';
+          installButton.style.border = 'none';
+          installButton.style.cursor = 'pointer';
+          installButton.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+          
+          installButton.addEventListener('click', () => {
+            // Mostrar el prompt de instalación
+            deferredPrompt.prompt();
+            // Esperar a que el usuario responda al prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('Usuario aceptó la instalación');
+              } else {
+                console.log('Usuario rechazó la instalación');
+              }
+              deferredPrompt = null;
+            });
+            // Ocultar el botón después de hacer clic
+            installButton.style.display = 'none';
+          });
+          
+          document.body.appendChild(installButton);
+          
+          // Ocultar el botón después de 10 segundos
+          setTimeout(() => {
+            if (installButton && installButton.parentNode) {
+              installButton.style.opacity = '0';
+              setTimeout(() => {
+                if (installButton && installButton.parentNode) {
+                  installButton.parentNode.removeChild(installButton);
+                }
+              }, 500);
+            }
+          }, 10000);
+        });
+      });
+    </script>
+    
+    <!-- Cargar socket.io desde CDN para mejor compatibilidad -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="app.js"></script>
+    <!-- Script de partículas -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+      // Inicialización de partículas
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof particlesJS !== 'undefined') {
+          particlesJS('particles-js', {
+            particles: {
+              number: {
+                value: 80,
+                density: {
+                  enable: true,
+                  value_area: 800
+                }
+              },
+              color: {
+                value: '#4cc9f0'
+              },
+              shape: {
+                type: 'circle',
+                stroke: {
+                  width: 0,
+                  color: '#000000'
+                },
+                polygon: {
+                  nb_sides: 5
+                }
+              },
+              opacity: {
+                value: 0.5,
+                random: true,
+                anim: {
+                  enable: true,
+                  speed: 1,
+                  opacity_min: 0.1,
+                  sync: false
+                }
+              },
+              size: {
+                value: 3,
+                random: true,
+                anim: {
+                  enable: true,
+                  speed: 2,
+                  size_min: 0.1,
+                  sync: false
+                }
+              },
+              line_linked: {
+                enable: true,
+                distance: 150,
+                color: '#4361ee',
+                opacity: 0.4,
+                width: 1
+              },
+              move: {
+                enable: true,
+                speed: 1,
+                direction: 'none',
+                random: true,
+                straight: false,
+                out_mode: 'out',
+                bounce: false,
+                attract: {
+                  enable: true,
+                  rotateX: 600,
+                  rotateY: 1200
+                }
+              }
+            },
+            interactivity: {
+              detect_on: 'canvas',
+              events: {
+                onhover: {
+                  enable: true,
+                  mode: 'grab'
+                },
+                onclick: {
+                  enable: true,
+                  mode: 'push'
+                },
+                resize: true
+              },
+              modes: {
+                grab: {
+                  distance: 140,
+                  line_linked: {
+                    opacity: 1
+                  }
+                },
+                push: {
+                  particles_nb: 4
+                }
+              }
+            },
+            retina_detect: true
+          });
+        } else {
+          console.warn('particles.js no se cargó correctamente');
+        }
+      });
+    </script>
+  </body>
+</html>

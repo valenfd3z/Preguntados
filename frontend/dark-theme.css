@@ -1,0 +1,614 @@
+/* Dark Theme for Preguntados */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #1a1a2e;
+  --card-bg: #16213e;
+  --text-color: #e6e6e6;
+  --primary-color: #4cc9f0;
+  --secondary-color: #4361ee;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --border-color: #2a2a4a;
+  --hover-color: #2a2a4a;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+#app {
+  max-width: 900px;
+  width: 100%;
+  margin: 20px;
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#login {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+input[type="text"] {
+  padding: 14px 18px;
+  font-size: 16px;
+  width: 280px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  outline: none;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+input[type="text"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+}
+
+button {
+  padding: 14px 24px;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+button:hover::after {
+  opacity: 1;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  background: #555 !important;
+}
+
+canvas#roulette {
+  margin: 20px 0;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  background: white;
+  transition: transform 0.1s ease;
+}
+
+canvas#roulette:hover {
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
+}
+
+#game {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+#turnInfo {
+  color: var(--primary-color);
+  margin: 15px 0 25px;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#question {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 25px 0 30px;
+  text-align: center;
+  color: var(--text-color);
+  line-height: 1.5;
+  max-width: 700px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 800px;
+  padding: 10px;
+}
+
+.option-btn {
+  margin: 0;
+  padding: 18px 25px;
+  font-size: 16px;
+  font-weight: 400;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+.option-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.option-btn:hover::before {
+  opacity: 1;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  background: rgba(76, 201, 240, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.option-btn.correct {
+  background-color: var(--success-color);
+  color: white;
+  border-color: #3d8b40;
+  transform: scale(1.02);
+  animation: pulseCorrect 0.5s ease-out;
+}
+
+.option-btn.wrong {
+  background-color: var(--error-color);
+  color: white;
+  border-color: #d32f2f;
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+#progressContainer {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin: 20px 0 25px;
+  height: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+#progressBar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite linear;
+  transform: translateX(-100%);
+}
+
+#timerContainer {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 30px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#timerBar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #ff4757);
+  transition: width 1s linear;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+#timerBar.low-time {
+  background: linear-gradient(90deg, #ff9e7d, #ff6b6b);
+  animation: pulse 1s infinite;
+}
+
+#score {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 25px;
+  padding: 18px 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
+  text-align: center;
+  min-width: 200px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+#score::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(76, 201, 240, 0.1), transparent);
+  z-index: -1;
+}
+
+/* Animations */
+@keyframes pulseCorrect {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+  100% { transform: scale(1.02); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-3px); }
+  40%, 60% { transform: translateX(3px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+@keyframes scoreUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.score-update {
+  animation: scoreUpdate 0.5s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #app {
+    margin: 10px;
+    padding: 20px 15px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+  
+  #options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .option-btn {
+    padding: 16px 20px;
+  }
+  
+  #question {
+    font-size: 20px;
+    padding: 15px;
+  }
+  
+  button {
+    min-width: 140px;
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Evitar desbordamiento horizontal */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* Mejorar la experiencia táctil en dispositivos móviles */
+button, .option-btn {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  touch-action: manipulation;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  #app {
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 15px 10px;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+    margin: 15px 0 25px;
+  }
+  
+  #roulette {
+    width: 90vw !important;
+    height: 90vw !important;
+    max-width: 400px;
+    max-height: 400px;
+  }
+  
+  #options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 10px;
+  }
+  
+  .option-btn {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+  
+  #question {
+    font-size: 18px;
+    padding: 15px;
+    margin: 15px 0 20px;
+  }
+  
+  button {
+    min-width: 140px;
+    padding: 12px 18px;
+    font-size: 14px;
+    margin: 5px;
+  }
+  
+  #login input[type="text"] {
+    width: 80%;
+    max-width: 300px;
+  }
+  
+  #progressContainer, #timerContainer {
+    margin: 15px auto;
+    max-width: 90%;
+  }
+  
+  #score {
+    font-size: 18px;
+    padding: 12px 20px;
+    margin-top: 15px;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.6rem;
+  }
+  
+  #roulette {
+    width: 95vw !important;
+    height: 95vw !important;
+  }
+  
+  #question {
+    font-size: 16px;
+  }
+  
+  .option-btn {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Ajustes para modo paisaje en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  #app {
+    padding: 10px 5px;
+  }
+  
+  #roulette {
+    width: 60vh !important;
+    height: 60vh !important;
+    max-width: 50vw;
+    max-height: 50vw;
+    margin: 10px 0;
+  }
+  
+  #options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding: 0 5px;
+  }
+  
+  #question {
+    margin: 5px 0 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  #progressContainer, #timerContainer {
+    margin: 8px auto;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+  #app {
+    max-width: 95%;
+    padding: 20px 15px;
+  }
+  
+  #roulette {
+    width: 60vw !important;
+    height: 60vw !important;
+    max-width: 500px;
+    max-height: 500px;
+  }
+  
+  #options {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 90%;
+  }
+}
+
+/* Ajustes para pantallas grandes */
+@media (min-width: 1200px) {
+  #app {
+    max-width: 1000px;
+  }
+  
+  #roulette {
+    width: 500px !important;
+    height: 500px !important;
+  }
+  
+  #options {
+    max-width: 800px;
+  }
+}
+
+/* Ajustes para evitar el zoom en inputs en iOS */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Mejorar la legibilidad en dispositivos con modo oscuro forzado */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+  }
+  
+  #app {
+    background-color: #1e1e1e;
+    border-color: #333;
+  }
+  
+  input[type="text"] {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+  }
+  
+  .option-btn {
+    background-color: #2d2d2d;
+    border-color: #444;
+  }
+}
