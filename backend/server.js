@@ -4,12 +4,14 @@ const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const { Pool, Client } = require('pg');
+const fs = require('fs').promises; // Para verificar si el archivo existe
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 const HOST = '0.0.0.0';
 
+// Verificar conexión a la base de datos
 const testDatabaseConnection = async () => {
   console.log('🔍 Intentando conectar con la base de datos...');
   const dbConfig = {
@@ -33,13 +35,13 @@ const testDatabaseConnection = async () => {
   }
 };
 
-// Configuración de CORS para desarrollo y producción
+// Configuración de CORS
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4000',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:4000',
-  'https://preguntados.onrender.com', // Dominio de producción
+  'https://preguntados.onrender.com',
   'file://',
   'null',
 ];
@@ -58,13 +60,32 @@ app.use(
 );
 
 app.use(express.json());
-// Servir archivos estáticos desde la carpeta 'frontend'
-app.use(express.static(path.join(__dirname, 'frontend'))); // Ajusta si tu carpeta es diferente, e.g., 'public'
+
+// Servir archivos estáticos desde la carpeta 'frontend' (un nivel arriba)
+const frontendPath = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
+
+// Verificar si index.html existe
+const checkIndexHtml = async () => {
+  try {
+    await fs.access(path.join(frontendPath, 'index.html'));
+    return true;
+  } catch {
+    console.error(`⚠️ No se encontró index.html en ${frontendPath}`);
+    return false;
+  }
+};
 
 const startServer = async () => {
   const dbConnected = await testDatabaseConnection();
   if (!dbConnected) {
     console.error('🚫 No se pudo conectar a la base de datos. Cerrando servidor.');
+    process.exit(1);
+  }
+
+  const indexHtmlExists = await checkIndexHtml();
+  if (!indexHtmlExists) {
+    console.error('🚫 No se puede iniciar el servidor: falta index.html en la carpeta frontend.');
     process.exit(1);
   }
 
@@ -80,7 +101,7 @@ const startServer = async () => {
       methods: ['GET', 'POST', 'OPTIONS'],
       credentials: true,
     },
-    transports: ['websocket', 'polling'], // Fallback a polling
+    transports: ['websocket', 'polling'],
     pingTimeout: 60000,
     pingInterval: 25000,
   });
@@ -365,13 +386,31 @@ const startServer = async () => {
   });
 
   // Ruta explícita para index.html
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  app.get('/', async (req, res) => {
+    const filePath = path.join(frontendPath, 'index.html');
+    try {
+      await fs.access(filePath); // Verificar si el archivo existe
+      res.sendFile(filePath);
+    } catch {
+      res.status(404).send('Archivo index.html no encontrado. Verifica que exista en la carpeta frontend.');
+    }
   });
 
-  // Manejo de rutas SPA (redirige rutas no encontradas a index.html)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  // Manejo de rutas SPA
+  app.get(/\/.*/, async (req, res) => {
+    const filePath = path.join(frontendPath, 'index.html');
+    try {
+      await fs.access(filePath); // Verificar si el archivo existe
+      res.sendFile(filePath);
+    } catch {
+      res.status(404).send('Archivo index.html no encontrado. Verifica que exista en la carpeta frontend.');
+    }
+  });
+
+  // Manejador de errores
+  app.use((err, req, res, next) => {
+    console.error('Error:', err.message);
+    res.status(500).send('Error interno del servidor');
   });
 
   server.listen(PORT, HOST, () => {
