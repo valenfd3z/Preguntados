@@ -337,20 +337,6 @@
         
         .start-btn:hover::before { left: 100%; }
 
-        /* Ajustes móviles para iconos */
-        @media (max-width: 480px) {
-            .icon-decor {
-                width: 25px !important;
-                opacity: 0.08;
-                animation-duration: 40s !important;
-            }
-            .icon-decor:nth-child(1) { top: 5%; left: 50%; transform: translateX(-50%); }
-            .icon-decor:nth-child(2) { top: 20%; left: 10%; }
-            .icon-decor:nth-child(3) { top: 35%; right: 10%; }
-            .icon-decor:nth-child(4) { bottom: 20%; left: 20%; }
-            .icon-decor:nth-child(5) { bottom: 15%; right: 15%; }
-        }
-
         /* Ajustes generales para móviles */
         @media (max-width: 480px) {
             body { padding: 10px; }
@@ -364,6 +350,40 @@
             .feature h3 { font-size: 1rem; margin-bottom: 0.6rem; }
             .feature p { font-size: 0.9rem; line-height: 1.5; }
             .start-btn { padding: 0.9rem 2rem; font-size: 0.9rem; margin-top: 1rem; border-radius: 30px; }
+        }
+
+        /* OPTIMIZACIÓN PARA MÓVILES - Ocultar iconos decorativos */
+        @media (max-width: 768px) {
+            .icon-decor {
+                display: none;
+            }
+            
+            .icon-decor:nth-child(1),
+            .icon-decor:nth-child(2) {
+                display: block;
+                width: 20px !important;
+                height: 20px !important;
+                opacity: 0.1 !important;
+                animation-duration: 25s !important;
+            }
+            
+            .icon-decor:nth-child(1) {
+                top: 15% !important;
+                left: 85% !important;
+                transform: none !important;
+            }
+            
+            .icon-decor:nth-child(2) {
+                bottom: 25% !important;
+                left: 10% !important;
+                transform: none !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .icon-decor {
+                display: none !important;
+            }
         }
     </style>
 </head>
